@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Güvercin Soy Ağacı Oluşturucu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+        padding: 30px;
+      }
+
+      .form-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+        border-bottom: 3px solid #4ecdc4;
+        padding-bottom: 10px;
+      }
+
+      .generation {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .generation h3 {
+        color: #ff6b6b;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+      }
+
+      .bird-inputs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .input-group {
+        margin-bottom: 10px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: bold;
+      }
+
+      .input-group input,
+      .input-group select,
+      .input-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      .input-group input:focus,
+      .input-group select:focus,
+      .input-group textarea:focus {
+        outline: none;
+        border-color: #4ecdc4;
+      }
+
+      .input-group textarea {
+        height: 60px;
+        resize: vertical;
+      }
+
+      .pedigree-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+
+      .pedigree-section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+        border-bottom: 3px solid #ff6b6b;
+        padding-bottom: 10px;
+      }
+
+      #pedigree-tree {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        min-height: 600px;
+        position: relative;
+        overflow: auto;
+      }
+
+      .tree-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100%;
+      }
+
+      .generation-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 20px;
+        position: relative;
+      }
+
+      .bird-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        min-width: 200px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+      }
+
+      .bird-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      .bird-card.male {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+
+      .bird-card.female {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      }
+
+      .bird-card h4 {
+        font-size: 1.1em;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      .bird-card .ring {
+        font-size: 0.9em;
+        opacity: 0.9;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+
+      .bird-card .details {
+        font-size: 0.8em;
+        opacity: 0.8;
+        line-height: 1.4;
+      }
+
+      .connection-line {
+        position: absolute;
+        background: #666;
+        height: 2px;
+        z-index: 1;
+      }
+
+      .buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .btn {
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        margin: 0 10px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 1024px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        .bird-inputs {
+          grid-template-columns: 1fr;
+        }
+
+        .generation-column {
+          margin: 0 10px;
+        }
+
+        .bird-card {
+          min-width: 150px;
+          font-size: 0.9em;
+        }
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4ecdc4;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🕊️ Güvercin Soy Ağacı Oluşturucu</h1>
+        <p>Güvercininizin 4 nesil soy ağacını oluşturun ve kaydedin</p>
+      </div>
+
+      <div class="content">
+        <div class="form-section">
+          <h2>📝 Güvercin Bilgileri</h2>
+
+          <!-- 1. Nesil (Ana Güvercin) -->
+          <div class="generation">
+            <h3>1. Nesil - Ana Güvercin</h3>
+            <div class="input-group">
+              <label for="gen1-name">İsim:</label>
+              <input type="text" id="gen1-name" placeholder="Güvercin adı" />
+            </div>
+            <div class="bird-inputs">
+              <div class="input-group">
+                <label for="gen1-ring">Halka No:</label>
+                <input
+                  type="text"
+                  id="gen1-ring"
+                  placeholder="TR-25-34-18479"
+                />
+              </div>
+              <div class="input-group">
+                <label for="gen1-gender">Cinsiyet:</label>
+                <select id="gen1-gender">
+                  <option value="male">Erkek</option>
+                  <option value="female">Dişi</option>
+                </select>
+              </div>
+            </div>
+            <div class="bird-inputs">
+              <div class="input-group">
+                <label for="gen1-color">Renk:</label>
+                <input
+                  type="text"
+                  id="gen1-color"
+                  placeholder="Mavi, kırmızı, beyaz..."
+                />
+              </div>
+              <div class="input-group">
+                <label for="gen1-birthyear">Doğum Yılı:</label>
+                <input type="text" id="gen1-birthyear" placeholder="2023" />
+              </div>
+            </div>
+            <div class="bird-inputs">
+              <div class="input-group">
+                <label for="gen1-breeder">Yetiştiricisi:</label>
+                <input
+                  type="text"
+                  id="gen1-breeder"
+                  placeholder="Yetiştirici adı"
+                />
+              </div>
+              <div class="input-group">
+                <label for="gen1-achievements">Başarılar:</label>
+                <input
+                  type="text"
+                  id="gen1-achievements"
+                  placeholder="Yarış dereceleri, ödüller..."
+                />
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="gen1-details">Ek Detaylar:</label>
+              <textarea
+                id="gen1-details"
+                placeholder="Özel özellikler, notlar..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- 2. Nesil (Anne-Baba) -->
+          <div class="generation">
+            <h3>2. Nesil - Anne ve Baba</h3>
+            <div class="bird-inputs">
+              <div>
+                <h4>👨 Baba</h4>
+                <div class="input-group">
+                  <label for="gen2-father-name">İsim:</label>
+                  <input
+                    type="text"
+                    id="gen2-father-name"
+                    placeholder="Baba adı"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen2-father-ring">Halka No:</label>
+                  <input
+                    type="text"
+                    id="gen2-father-ring"
+                    placeholder="Halka numarası"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen2-father-details">Detaylar:</label>
+                  <textarea
+                    id="gen2-father-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <h4>👩 Anne</h4>
+                <div class="input-group">
+                  <label for="gen2-mother-name">İsim:</label>
+                  <input
+                    type="text"
+                    id="gen2-mother-name"
+                    placeholder="Anne adı"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen2-mother-ring">Halka No:</label>
+                  <input
+                    type="text"
+                    id="gen2-mother-ring"
+                    placeholder="Halka numarası"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen2-mother-details">Detaylar:</label>
+                  <textarea
+                    id="gen2-mother-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Nesil (Büyükanne-Büyükbaba) -->
+          <div class="generation">
+            <h3>3. Nesil - Büyükanne ve Büyükbabalar</h3>
+            <div class="bird-inputs">
+              <div>
+                <h4>👴 Baba Tarafı Büyükbaba</h4>
+                <div class="input-group">
+                  <label for="gen3-pgf-name">İsim:</label>
+                  <input type="text" id="gen3-pgf-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-pgf-ring">Halka No:</label>
+                  <input
+                    type="text"
+                    id="gen3-pgf-ring"
+                    placeholder="Halka numarası"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-pgf-details">Detaylar:</label>
+                  <textarea
+                    id="gen3-pgf-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <h4>👵 Baba Tarafı Büyükanne</h4>
+                <div class="input-group">
+                  <label for="gen3-pgm-name">İsim:</label>
+                  <input type="text" id="gen3-pgm-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-pgm-ring">Halka No:</label>
+                  <input
+                    type="text"
+                    id="gen3-pgm-ring"
+                    placeholder="Halka numarası"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-pgm-details">Detaylar:</label>
+                  <textarea
+                    id="gen3-pgm-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="bird-inputs">
+              <div>
+                <h4>👴 Anne Tarafı Büyükbaba</h4>
+                <div class="input-group">
+                  <label for="gen3-mgf-name">İsim:</label>
+                  <input type="text" id="gen3-mgf-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-mgf-ring">Halka No:</label>
+                  <input
+                    type="text"
+                    id="gen3-mgf-ring"
+                    placeholder="Halka numarası"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-mgf-details">Detaylar:</label>
+                  <textarea
+                    id="gen3-mgf-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <h4>👵 Anne Tarafı Büyükanne</h4>
+                <div class="input-group">
+                  <label for="gen3-mgm-name">İsim:</label>
+                  <input type="text" id="gen3-mgm-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-mgm-ring">Halka No:</label>
+                  <input
+                    type="text"
+                    id="gen3-mgm-ring"
+                    placeholder="Halka numarası"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="gen3-mgm-details">Detaylar:</label>
+                  <textarea
+                    id="gen3-mgm-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Nesil (Büyük Büyükanne-Büyük Büyükbaba) -->
+          <div class="generation">
+            <h3>4. Nesil - Büyük Büyükanne ve Büyük Büyükbabalar</h3>
+            <div class="bird-inputs">
+              <div>
+                <h4>👴 Baba-Baba Tarafı Büyükbaba</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-ppgf-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-ppgf-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-ppgf-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <h4>👵 Baba-Baba Tarafı Büyükanne</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-ppgm-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-ppgm-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-ppgm-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="bird-inputs">
+              <div>
+                <h4>👴 Baba-Anne Tarafı Büyükbaba</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-pmgf-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-pmgf-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-pmgf-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <h4>👵 Baba-Anne Tarafı Büyükanne</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-pmgm-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-pmgm-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-pmgm-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="bird-inputs">
+              <div>
+                <h4>👴 Anne-Baba Tarafı Büyükbaba</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-mgpf-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-mgpf-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-mgpf-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <h4>👵 Anne-Baba Tarafı Büyükanne</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-mgpm-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-mgpm-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-mgpm-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="bird-inputs">
+              <div>
+                <h4>👴 Anne-Anne Tarafı Büyükbaba</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-mgmf-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-mgmf-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-mgmf-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <h4>👵 Anne-Anne Tarafı Büyükanne</h4>
+                <div class="input-group">
+                  <input type="text" id="gen4-mgmm-name" placeholder="İsim" />
+                </div>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="gen4-mgmm-ring"
+                    placeholder="Halka No"
+                  />
+                </div>
+                <div class="input-group">
+                  <textarea
+                    id="gen4-mgmm-details"
+                    placeholder="Detaylar..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button class="btn" onclick="updatePedigree()">
+              🔄 Soy Ağacını Güncelle
+            </button>
+          </div>
+        </div>
+
+        <div class="pedigree-section">
+          <h2>🌳 Soy Ağacı</h2>
+          <div id="pedigree-tree">
+            <div class="tree-container">
+              <p style="text-align: center; color: #666; margin-top: 50px">
+                Sol taraftaki formu doldurun ve "Soy Ağacını Güncelle" butonuna
+                basın
+              </p>
+            </div>
+          </div>
+
+          <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>İndirme hazırlanıyor...</p>
+          </div>
+
+          <div class="buttons">
+            <button class="btn" onclick="downloadPDF()">📄 PDF İndir</button>
+            <button class="btn" onclick="downloadImage()">
+              🖼️ Resim İndir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function updatePedigree() {
+        const tree = document.getElementById("pedigree-tree");
+
+        // Veri toplama
+        const data = {
+          gen1: {
+            name: document.getElementById("gen1-name").value || "Ana Güvercin",
+            ring: document.getElementById("gen1-ring").value,
+            gender: document.getElementById("gen1-gender").value,
+            color: document.getElementById("gen1-color").value,
+            birthyear: document.getElementById("gen1-birthyear").value,
+            breeder: document.getElementById("gen1-breeder").value,
+            achievements: document.getElementById("gen1-achievements").value,
+            details: document.getElementById("gen1-details").value,
+          },
+          gen2: {
+            father: {
+              name: document.getElementById("gen2-father-name").value || "Baba",
+              ring: document.getElementById("gen2-father-ring").value,
+              details: document.getElementById("gen2-father-details").value,
+            },
+            mother: {
+              name: document.getElementById("gen2-mother-name").value || "Anne",
+              ring: document.getElementById("gen2-mother-ring").value,
+              details: document.getElementById("gen2-mother-details").value,
+            },
+          },
+          gen3: {
+            pgf: {
+              name:
+                document.getElementById("gen3-pgf-name").value || "B.B.Baba",
+              ring: document.getElementById("gen3-pgf-ring").value,
+              details: document.getElementById("gen3-pgf-details").value,
+            },
+            pgm: {
+              name:
+                document.getElementById("gen3-pgm-name").value || "B.B.Anne",
+              ring: document.getElementById("gen3-pgm-ring").value,
+              details: document.getElementById("gen3-pgm-details").value,
+            },
+            mgf: {
+              name:
+                document.getElementById("gen3-mgf-name").value || "A.B.Baba",
+              ring: document.getElementById("gen3-mgf-ring").value,
+              details: document.getElementById("gen3-mgf-details").value,
+            },
+            mgm: {
+              name:
+                document.getElementById("gen3-mgm-name").value || "A.B.Anne",
+              ring: document.getElementById("gen3-mgm-ring").value,
+              details: document.getElementById("gen3-mgm-details").value,
+            },
+          },
+          gen4: {
+            ppgf: {
+              name:
+                document.getElementById("gen4-ppgf-name").value || "B.B.B.B",
+              ring: document.getElementById("gen4-ppgf-ring").value,
+              details: document.getElementById("gen4-ppgf-details").value,
+            },
+            ppgm: {
+              name:
+                document.getElementById("gen4-ppgm-name").value || "B.B.B.A",
+              ring: document.getElementById("gen4-ppgm-ring").value,
+              details: document.getElementById("gen4-ppgm-details").value,
+            },
+            pmgf: {
+              name:
+                document.getElementById("gen4-pmgf-name").value || "B.A.B.B",
+              ring: document.getElementById("gen4-pmgf-ring").value,
+              details: document.getElementById("gen4-pmgf-details").value,
+            },
+            pmgm: {
+              name:
+                document.getElementById("gen4-pmgm-name").value || "B.A.B.A",
+              ring: document.getElementById("gen4-pmgm-ring").value,
+              details: document.getElementById("gen4-pmgm-details").value,
+            },
+            mgpf: {
+              name:
+                document.getElementById("gen4-mgpf-name").value || "A.B.B.B",
+              ring: document.getElementById("gen4-mgpf-ring").value,
+              details: document.getElementById("gen4-mgpf-details").value,
+            },
+            mgpm: {
+              name:
+                document.getElementById("gen4-mgpm-name").value || "A.B.B.A",
+              ring: document.getElementById("gen4-mgpm-ring").value,
+              details: document.getElementById("gen4-mgpm-details").value,
+            },
+            mgmf: {
+              name:
+                document.getElementById("gen4-mgmf-name").value || "A.A.B.B",
+              ring: document.getElementById("gen4-mgmf-ring").value,
+              details: document.getElementById("gen4-mgmf-details").value,
+            },
+            mgmm: {
+              name:
+                document.getElementById("gen4-mgmm-name").value || "A.A.B.A",
+              ring: document.getElementById("gen4-mgmm-ring").value,
+              details: document.getElementById("gen4-mgmm-details").value,
+            },
+          },
+        };
+
+        // Ağaç oluşturma
+        tree.innerHTML = `
+                <div class="tree-container">
+                    <!-- 1. Nesil -->
+                    <div class="generation-column">
+                        <h3 style="color: #333; margin-bottom: 20px;">1. Nesil</h3>
+                        <div class="bird-card ${data.gen1.gender}">
+                            <h4>${data.gen1.name}</h4>
+                            <div class="ring">${data.gen1.ring}</div>
+                            <div class="details">
+                                ${
+                                  data.gen1.color
+                                    ? `Renk: ${data.gen1.color}<br>`
+                                    : ""
+                                }
+                                ${
+                                  data.gen1.birthyear
+                                    ? `Doğum: ${data.gen1.birthyear}<br>`
+                                    : ""
+                                }
+                                ${
+                                  data.gen1.breeder
+                                    ? `Yetiştirici: ${data.gen1.breeder}<br>`
+                                    : ""
+                                }
+                                ${
+                                  data.gen1.achievements
+                                    ? `Başarılar: ${data.gen1.achievements}<br>`
+                                    : ""
+                                }
+                                ${data.gen1.details}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Nesil -->
+                    <div class="generation-column">
+                        <h3 style="color: #333; margin-bottom: 20px;">2. Nesil</h3>
+                        <div class="bird-card male">
+                            <h4>${data.gen2.father.name}</h4>
+                            <div class="ring">${data.gen2.father.ring}</div>
+                            <div class="details">${
+                              data.gen2.father.details
+                            }</div>
+                        </div>
+                        <div class="bird-card female">
+                            <h4>${data.gen2.mother.name}</h4>
+                            <div class="ring">${data.gen2.mother.ring}</div>
+                            <div class="details">${
+                              data.gen2.mother.details
+                            }</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Nesil -->
+                    <div class="generation-column">
+                        <h3 style="color: #333; margin-bottom: 20px;">3. Nesil</h3>
+                        <div class="bird-card male">
+                            <h4>${data.gen3.pgf.name}</h4>
+                            <div class="ring">${data.gen3.pgf.ring}</div>
+                            <div class="details">${data.gen3.pgf.details}</div>
+                        </div>
+                        <div class="bird-card female">
+                            <h4>${data.gen3.pgm.name}</h4>
+                            <div class="ring">${data.gen3.pgm.ring}</div>
+                            <div class="details">${data.gen3.pgm.details}</div>
+                        </div>
+                        <div class="bird-card male">
+                            <h4>${data.gen3.mgf.name}</h4>
+                            <div class="ring">${data.gen3.mgf.ring}</div>
+                            <div class="details">${data.gen3.mgf.details}</div>
+                        </div>
+                        <div class="bird-card female">
+                            <h4>${data.gen3.mgm.name}</h4>
+                            <div class="ring">${data.gen3.mgm.ring}</div>
+                            <div class="details">${data.gen3.mgm.details}</div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Nesil -->
+                    <div class="generation-column">
+                        <h3 style="color: #333; margin-bottom: 20px;">4. Nesil</h3>
+                        <div class="bird-card male">
+                            <h4>${data.gen4.ppgf.name}</h4>
+                            <div class="ring">${data.gen4.ppgf.ring}</div>
+                            <div class="details">${data.gen4.ppgf.details}</div>
+                        </div>
+                        <div class="bird-card female">
+                            <h4>${data.gen4.ppgm.name}</h4>
+                            <div class="ring">${data.gen4.ppgm.ring}</div>
+                            <div class="details">${data.gen4.ppgm.details}</div>
+                        </div>
+                        <div class="bird-card male">
+                            <h4>${data.gen4.pmgf.name}</h4>
+                            <div class="ring">${data.gen4.pmgf.ring}</div>
+                            <div class="details">${data.gen4.pmgf.details}</div>
+                        </div>
+                        <div class="bird-card female">
+                            <h4>${data.gen4.pmgm.name}</h4>
+                            <div class="ring">${data.gen4.pmgm.ring}</div>
+                            <div class="details">${data.gen4.pmgm.details}</div>
+                        </div>
+                        <div class="bird-card male">
+                            <h4>${data.gen4.mgpf.name}</h4>
+                            <div class="ring">${data.gen4.mgpf.ring}</div>
+                            <div class="details">${data.gen4.mgpf.details}</div>
+                        </div>
+                        <div class="bird-card female">
+                            <h4>${data.gen4.mgpm.name}</h4>
+                            <div class="ring">${data.gen4.mgpm.ring}</div>
+                            <div class="details">${data.gen4.mgpm.details}</div>
+                        </div>
+                        <div class="bird-card male">
+                            <h4>${data.gen4.mgmf.name}</h4>
+                            <div class="ring">${data.gen4.mgmf.ring}</div>
+                            <div class="details">${data.gen4.mgmf.details}</div>
+                        </div>
+                        <div class="bird-card female">
+                            <h4>${data.gen4.mgmm.name}</h4>
+                            <div class="ring">${data.gen4.mgmm.ring}</div>
+                            <div class="details">${data.gen4.mgmm.details}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      async function downloadPDF() {
+        const loading = document.getElementById("loading");
+        loading.style.display = "block";
+
+        try {
+          const element = document.getElementById("pedigree-tree");
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF("l", "mm", "a4");
+
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          const imgWidth = canvas.width;
+          const imgHeight = canvas.height;
+          const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+          const imgX = (pdfWidth - imgWidth * ratio) / 2;
+          const imgY = 30;
+
+          pdf.addImage(
+            imgData,
+            "PNG",
+            imgX,
+            imgY,
+            imgWidth * ratio,
+            imgHeight * ratio
+          );
+
+          const mainBirdName =
+            document.getElementById("gen1-name").value || "Güvercin";
+          pdf.save(`${mainBirdName}_soy_agaci.pdf`);
+        } catch (error) {
+          alert("PDF oluşturulurken hata oluştu: " + error.message);
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      async function downloadImage() {
+        const loading = document.getElementById("loading");
+        loading.style.display = "block";
+
+        try {
+          const element = document.getElementById("pedigree-tree");
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+          });
+
+          const link = document.createElement("a");
+          link.download = `${
+            document.getElementById("gen1-name").value || "Güvercin"
+          }_soy_agaci.png`;
+          link.href = canvas.toDataURL();
+          link.click();
+        } catch (error) {
+          alert("Resim oluşturulurken hata oluştu: " + error.message);
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      // Form inputlarına event listener ekle
+      function addInputListeners() {
+        const inputs = document.querySelectorAll("input, select, textarea");
+        inputs.forEach((input) => {
+          input.addEventListener("input", updatePedigree);
+          input.addEventListener("change", updatePedigree);
+        });
+      }
+
+      // Sayfa yüklendiğinde örnek veriyi göster
+      window.onload = function () {
+        // Örnek veri ile başlat
+        document.getElementById("gen1-name").value = "SON JULIA";
+        document.getElementById("gen1-ring").value = "TR-25-34-18479";
+        document.getElementById("gen1-color").value = "Mavi";
+        document.getElementById("gen1-birthyear").value = "2023";
+        document.getElementById("gen1-breeder").value = "Enes ÇAYIR";
+        document.getElementById("gen1-achievements").value =
+          "Final 453 Km 108.";
+        document.getElementById("gen1-details").value =
+          "Yarış güvercini, mükemmel performans";
+
+        document.getElementById("gen2-father-name").value = "ARTUR";
+        document.getElementById("gen2-father-ring").value = "BG-21-023460";
+        document.getElementById("gen2-father-details").value =
+          "Petarakırl Raponski";
+
+        document.getElementById("gen2-mother-name").value = "JULIA";
+        document.getElementById("gen2-mother-ring").value = "BG-20-44906";
+        document.getElementById("gen2-mother-details").value =
+          "X Blood Petarakırl";
+
+        updatePedigree();
+        addInputListeners();
+      };
+    </script>
+  </body>
+</html>
