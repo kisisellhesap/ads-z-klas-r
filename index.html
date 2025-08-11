@@ -17,7 +17,6 @@
         font-family: Arial, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
-        padding: 20px;
       }
 
       .container {
@@ -122,10 +121,11 @@
 
       .pedigree-section {
         background: #f8f9fa;
-        padding: 25px;
         border-radius: 10px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         position: relative;
+        width: 100%;
+        overflow-x: scroll;
       }
 
       .pedigree-section h2 {
@@ -139,7 +139,6 @@
       #pedigree-tree {
         background: white;
         border-radius: 10px;
-        padding: 30px;
         min-height: 600px;
         position: relative;
         overflow: auto;
@@ -147,11 +146,9 @@
 
       .tree-container {
         display: flex;
-        justify-content: center;
         align-items: flex-start;
         min-height: 100%;
         overflow-x: auto;
-        padding: 10px;
       }
 
       .generation-column {
