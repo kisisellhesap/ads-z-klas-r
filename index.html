@@ -27,6 +27,7 @@
         border-radius: 15px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         overflow: hidden;
+        width: 95%;
       }
 
       .header {
@@ -147,8 +148,10 @@
       .tree-container {
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         min-height: 100%;
+        overflow-x: auto;
+        padding: 10px;
       }
 
       .generation-column {
@@ -166,10 +169,14 @@
         border-radius: 10px;
         margin: 10px 0;
         min-width: 200px;
+        max-width: 280px;
+        width: 100%;
         text-align: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         transition: transform 0.3s, box-shadow 0.3s;
         position: relative;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
 
       .bird-card:hover {
@@ -239,7 +246,7 @@
         transform: translateY(0);
       }
 
-      @media (max-width: 1024px) {
+      @media (max-width: 1200px) {
         .content {
           grid-template-columns: 1fr;
         }
@@ -249,12 +256,300 @@
         }
 
         .generation-column {
+          margin: 0 15px;
+        }
+
+        .bird-card {
+          min-width: 180px;
+          font-size: 0.95em;
+        }
+
+        .tree-container {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .generation-column {
+          margin: 20px 0;
+        }
+
+        .generation-column h3 {
+          text-align: center;
+          margin-bottom: 15px;
+        }
+
+        .generation-column .bird-card {
+          margin: 5px auto;
+          max-width: 250px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .header {
+          padding: 20px;
+        }
+
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        .content {
+          padding: 20px;
+          gap: 20px;
+        }
+
+        .form-section,
+        .pedigree-section {
+          padding: 20px;
+        }
+
+        .form-section h2,
+        .pedigree-section h2 {
+          font-size: 1.3em;
+        }
+
+        .generation {
+          padding: 15px;
+        }
+
+        .generation h3 {
+          font-size: 1.1em;
+        }
+
+        .generation h4 {
+          font-size: 1em;
+          margin: 10px 0 5px 0;
+        }
+
+        .input-group label {
+          font-size: 0.9em;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+          padding: 8px;
+          font-size: 14px;
+        }
+
+        .bird-card {
+          min-width: 200px;
+          max-width: 300px;
+          font-size: 0.9em;
+          padding: 12px;
+          margin: 8px auto;
+        }
+
+        .bird-card h4 {
+          font-size: 1em;
+        }
+
+        .bird-card .ring {
+          font-size: 0.85em;
+        }
+
+        .bird-card .details {
+          font-size: 0.75em;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 14px;
+          margin: 5px;
+          display: inline-block;
+          width: calc(50% - 10px);
+        }
+
+        .buttons {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        #pedigree-tree {
+          padding: 15px;
+          overflow-x: auto;
+        }
+
+        .tree-container {
+          min-width: 100%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header h1 {
+          font-size: 1.5em;
+        }
+
+        .header p {
+          font-size: 0.9em;
+        }
+
+        .content {
+          padding: 15px;
+        }
+
+        .form-section,
+        .pedigree-section {
+          padding: 15px;
+        }
+
+        .generation {
+          padding: 10px;
+        }
+
+        .bird-inputs {
+          gap: 10px;
+        }
+
+        .input-group {
+          margin-bottom: 8px;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+          padding: 6px;
+          font-size: 13px;
+        }
+
+        .bird-card {
+          min-width: 160px;
+          max-width: 280px;
+          font-size: 0.85em;
+          padding: 10px;
+        }
+
+        .bird-card h4 {
+          font-size: 0.95em;
+          margin-bottom: 3px;
+        }
+
+        .bird-card .ring {
+          font-size: 0.8em;
+          margin-bottom: 5px;
+        }
+
+        .bird-card .details {
+          font-size: 0.7em;
+          line-height: 1.3;
+        }
+
+        .btn {
+          width: 100%;
+          margin: 5px 0;
+          padding: 12px;
+          font-size: 15px;
+        }
+
+        .buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        #pedigree-tree {
+          padding: 10px;
+        }
+
+        .generation-column h3 {
+          font-size: 1em;
+          margin-bottom: 10px;
+        }
+
+        .loading p {
+          font-size: 0.9em;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .bird-card {
+          min-width: 140px;
+          max-width: 260px;
+          font-size: 0.8em;
+          padding: 8px;
+        }
+
+        .bird-card h4 {
+          font-size: 0.9em;
+        }
+
+        .bird-card .ring {
+          font-size: 0.75em;
+        }
+
+        .bird-card .details {
+          font-size: 0.65em;
+        }
+
+        .header h1 {
+          font-size: 1.3em;
+        }
+
+        .form-section h2,
+        .pedigree-section h2 {
+          font-size: 1.2em;
+        }
+
+        .generation h3 {
+          font-size: 1em;
+        }
+      }
+
+      /* Landscape tablet optimizasyonu */
+      @media (max-width: 1024px) and (orientation: landscape) {
+        .content {
+          grid-template-columns: 1fr 1.5fr;
+        }
+
+        .tree-container {
+          flex-direction: row;
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding: 10px;
+        }
+
+        .generation-column {
+          flex-shrink: 0;
           margin: 0 10px;
         }
 
         .bird-card {
-          min-width: 150px;
-          font-size: 0.9em;
+          min-width: 160px;
+          font-size: 0.85em;
+        }
+      }
+
+      /* Print optimizasyonu */
+      @media print {
+        body {
+          background: white;
+        }
+
+        .form-section {
+          display: none;
+        }
+
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        .pedigree-section {
+          box-shadow: none;
+          background: white;
+        }
+
+        .btn {
+          display: none;
+        }
+
+        .bird-card {
+          break-inside: avoid;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
       }
 
@@ -715,7 +1010,7 @@
     </div>
 
     <script>
-      function updatePedigree() {
+      window.updatePedigree = function () {
         const tree = document.getElementById("pedigree-tree");
 
         // Veri toplama
@@ -945,7 +1240,7 @@
                     </div>
                 </div>
             `;
-      }
+      };
 
       async function downloadPDF() {
         const loading = document.getElementById("loading");
